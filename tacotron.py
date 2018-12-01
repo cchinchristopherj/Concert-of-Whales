@@ -257,6 +257,19 @@ def fix_batch(X_train,num_to_add):
 # a post-processing-net later on in the model to synthesize raw spectrograms). This post-processing-net is once again
 # composed of a CBHG module, which learns to predict spectral magnitudes on a linear frequency scale due to the use
 # of the Griffin-Lim algorithm to create waveforms.
+
+# Model parameters
+# Batch size
+n_batch=32
+# Dimension of GRUs
+RNN_DIM = 128
+# Number of mel bands
+MEL_DIM = 80
+# Number of bins in linear frequency scale
+LINEAR_DIM = 129
+# Number of convolutional filters per layer
+BANK_DIM = 128
+
 def create_model(batch_input_shape,flag=1,rnn_dim=RNN_DIM,mel_dim=MEL_DIM,linear_dim=LINEAR_DIM,bank_dim=BANK_DIM):
     ''' create_model Method
             Create neural network model
@@ -402,18 +415,6 @@ X_train_mel = np.swapaxes(X_train_mel,1,2)
 Y_train_linear = np.copy(X_train)[:,1:,:]
 Y_train_mel = np.copy(X_train_mel)[:,1:,:]
 X_train = X_train[:,0:-1,:]
-
-# Model parameters
-# Batch size
-n_batch=32
-# Dimension of GRUs
-RNN_DIM = 128
-# Number of mel bands
-MEL_DIM = 80
-# Number of bins in linear frequency scale
-LINEAR_DIM = 129
-# Number of convolutional filters per layer
-BANK_DIM = 128
 
 # Specify the input shape, including the batch axis
 batch_input_shape=(n_batch, X_train.shape[1], X_train.shape[2])
