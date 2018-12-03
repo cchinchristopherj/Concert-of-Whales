@@ -184,6 +184,9 @@ let frame_level_outputs;
 // and the neural network is tasked with predicting the 9th sample onward (indexed
 // as 8 because Javascript uses zero-based indexing). 
 let t = 8;
+// The variable "complete" indicates whether or not the SampleRNN has finished 
+// predicting samples for the "samples" vector
+let complete = 0;
 // Due to the Web Audio API not accepting a sample rate of 2000 samples/second, the
 // completed "samples" vector is upsampled by 2 and the result stored in "samples_up.""
 let samples_up;
@@ -289,8 +292,8 @@ let Whale= function() {
   this.accelY = 0.0;
   this.deltaX = 0.0;
   this.deltaY = 0.0;
-  this.springing = 0.0004;
-  this.damping = 0.60;
+  this.springing = 0.0002;
+  this.damping = 0.90;
 
   // Number of Corner Nodes
   this.nodes = 5;
@@ -561,7 +564,10 @@ WhaleSystem.prototype.run = function(t_value) {
  * @param calls Array of "real" call sound files
  */
 WhaleSystem.prototype.addCalls = function(calls) {
-  for (let i = 0; i < this.whales.length-1; i++) {
+  // for (let i = 0; i < this.whales.length-1; i++) {
+  //   let w = this.whales[i];
+  //   w.addCall(calls[i]);
+  for (let i = 0; i < this.whales.length; i++) {
     let w = this.whales[i];
     w.addCall(calls[i]);
   }
@@ -1179,9 +1185,11 @@ function arr_to_wav(samples_up_filt) {
  * @param num_real_calls Number of "real" call sounds to be used
  */
 function collect_calls(num_real_calls) {
-  for (var i = 0; i < num_real_calls; i++) {
-    let call_ind = Math.floor(Math.random() * (num_real_calls));
-    calls.push(all_calls[call_ind]);
+  // for (var i = 0; i < num_real_calls; i++) {
+  //   let call_ind = Math.floor(Math.random() * (num_real_calls));
+  //   calls.push(all_calls[call_ind]);
+  for (var i = 0; i < num_real_calls+1; i++) {
+    calls.push(all_calls[i]);
   }
 }
 
@@ -1380,24 +1388,26 @@ function preload() {
     let real1 = loadSound('http://localhost:8080/real1.mp3');
     let real2 = loadSound('http://localhost:8080/real2.mp3');
     let real3 = loadSound('http://localhost:8080/real3.mp3');
-    let real4 = loadSound('http://localhost:8080/real4.mp3');
-    let real5 = loadSound('http://localhost:8080/real5.mp3');
-    let real6 = loadSound('http://localhost:8080/real6.mp3');
-    let real7 = loadSound('http://localhost:8080/real7.mp3');
-    let real8 = loadSound('http://localhost:8080/real8.mp3');
-    all_calls = [real1,real2,real3,real4,real5,real6,real7,real8];
+    let fake4 = loadSound('http://localhost:8080/fake4.mp3');
+    // Set the gain of the whale call sounds
+    real1.setVolume(0.2);
+    real2.setVolume(0.2);
+    real3.setVolume(0.2);
+    fake4.setVolume(0.2);
+    all_calls = [real1,real2,real3,fake4];
     // Load the JSON files containing the initial states of the GRUs
-    var url = 'http://localhost:8080/slow_rnn_initialstate.json';
-    slow_rnn_h_0 = loadJSON(url);
-    url = 'http://localhost:8080/mid_rnn_initialstate.json';
-    mid_rnn_h_0 = loadJSON(url);
+    // var url = 'http://localhost:8080/slow_rnn_initialstate.json';
+    // slow_rnn_h_0 = loadJSON(url);
+    // url = 'http://localhost:8080/mid_rnn_initialstate.json';
+    // mid_rnn_h_0 = loadJSON(url);
+    loading = true;
 }
 
 function setup() {
     // Set the canvas size
     createCanvas(displayWidth/2,displayHeight/2);
     // Call the asynchronous load_models() function to begin loading the SampleRNN
-    load_models();
+    // load_models();
     // Set the gain of the ambient sound and set it to loop
     ambient.setVolume(0.2);
     // Additional code to use the 3D audio available from p5.js
@@ -1409,7 +1419,7 @@ function setup() {
     // using "text_ind".
     text_ind = Math.floor(Math.random() * (facts.length));
     noStroke();
-    frameRate(30);
+    frameRate(200);
     // Create a new System of Whales
     system = new WhaleSystem();
     // Add four Whales to the system
@@ -1433,7 +1443,8 @@ function setup() {
     });
     button3 = createButton('Willy');
     button3.mousePressed(function() {
-      play_fake_call(3);
+      // play_fake_call(3);
+      system.makeCall(3);
     });
     button0.position(width+20,320);
     button1.position(width+20,340);
@@ -1487,7 +1498,7 @@ function draw() {
       // Call bar_move() to update the progres bar, indicating how many samples 
       // the SampleRNN has predicted for the "samples" vector.
       bar_move();
-      if (t == 4000) {
+      if (t >= 4000 && complete == 0) {
         // Code for when the "samples" vector is complete
         // Show DOM variables containing explanatory text
         explanationDiv1.show();
@@ -1504,12 +1515,13 @@ function draw() {
         button3.show();
         sel.show();
         // Create the fake call using the "samples" vector
-        create_fake_call();
+        // create_fake_call();
         // Add all the "real" calls to the Whales in the system
         collect_calls(num_real_calls);
         system.addCalls(calls);
         t = t + 1;
-      } else if (t > 4000) {
+        complete = 1;
+      } else if (t >= 4000 && complete == 1) {
         // Code for after the "samples" vector is complete
         // Show DOM variables containing explanatory text
         explanationDiv1.show();
@@ -1541,8 +1553,8 @@ function draw() {
           button2.hide();
           button3.hide();
           sel.hide();
-          pred_samples();
-          t = t+1;
+          // pred_samples();
+          t = t+5;
       }
   } else {
     // Code for before the SampleRNN finishes loading (i.e. code for the loading
@@ -1569,7 +1581,8 @@ function draw() {
     textSize(16);
     fill(255);
     textAlign(LEFT,CENTER);
-    text('Loading Whales...',0,20);
-    text(facts[text_ind],0,50,width,height/2);
+    text('Loading Whales...',2,20);
+    text('Whale Fun Fact:',2,170)
+    text(facts[text_ind],2,100,width,height/2);
   }
 }
