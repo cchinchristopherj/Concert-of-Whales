@@ -1256,7 +1256,7 @@ function play_fake_call(whale_num) {
  */
 async function load_models() {
   console.log('Loading models');
-  srnn = tf.loadModel('http://localhost:8080/srnn_fit/model.json',strict=false);
+  srnn = tf.loadModel('srnn_fit/model.json',strict=false);
   srnn = await srnn;
   console.log('SRNN loaded');
 
@@ -1376,19 +1376,19 @@ function preload() {
     // While the trained SampleRNN loads, a loading screen will be displayed on the
     // web page, showing a spectrogram of right whale upcalls. Preload this 
     // spectrogram image: 
-    spectrogram = loadImage("http://localhost:8080/spectrogram.png");
+    spectrogram = loadImage("spectrogram.png");
     // After the trained SampleRNN finishes loading, an ambient underwater sound will 
     // play in the background. The Whales will be drawn on the canvas and the SampleRNN
     // will begin synthesizing a new right whale upcall sound.
     soundFormats('mp3');
-    ambient = loadSound('http://localhost:8080/ambient.mp3');
+    ambient = loadSound('ambient.mp3');
     // There are eight "real" right whale upcall sounds available on the server 
     // to choose from. The "all_calls" vector will contain all these possible call
     // sounds.
-    let real1 = loadSound('http://localhost:8080/real1.mp3');
-    let real2 = loadSound('http://localhost:8080/real2.mp3');
-    let real3 = loadSound('http://localhost:8080/real3.mp3');
-    let fake4 = loadSound('http://localhost:8080/fake4.mp3');
+    let real1 = loadSound('real1.mp3');
+    let real2 = loadSound('real2.mp3');
+    let real3 = loadSound('real3.mp3');
+    let fake4 = loadSound('fake4.mp3');
     // Set the gain of the whale call sounds
     real1.setVolume(0.2);
     real2.setVolume(0.2);
