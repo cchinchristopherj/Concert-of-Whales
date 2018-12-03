@@ -1427,7 +1427,7 @@ function preload() {
 
 function setup() {
     // Set the canvas size
-    createCanvas(displayWidth/2,displayHeight/2);
+    createCanvas(800,400);
     // Call the asynchronous load_models() function to begin loading the SampleRNN
     // load_models();
     // Set the gain of the ambient sound and set it to loop
