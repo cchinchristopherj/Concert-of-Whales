@@ -45,6 +45,7 @@ let explanationDiv1;
 let explanationDiv2;
 let explanationDiv3;
 let explanationDiv4;
+let explanationDiv5;
 let chooseDiv1;
 let chooseDiv2;
 let correctDiv;
