@@ -1386,7 +1386,7 @@ function mySelectEvent() {
     correctDiv = createDiv('Not this one');
   }
   correctDiv.style('color','black');
-  correctDiv.style('position',width+20, 500);
+  correctDiv.style('position',width+20, 465);
 }
 
 /**
@@ -1427,7 +1427,7 @@ function preload() {
 
 function setup() {
     // Set the canvas size
-    createCanvas(600,400);
+    createCanvas(600,380);
     // Call the asynchronous load_models() function to begin loading the SampleRNN
     // load_models();
     // Set the gain of the ambient sound and set it to loop
@@ -1472,14 +1472,14 @@ function setup() {
       // play_fake_call(3);
       system.makeCall(3);
     });
-    button0.position(width+20,320);
-    button1.position(width+20,340);
-    button2.position(width+20,360);
-    button3.position(width+20,380);
+    button0.position(width+20,285);
+    button1.position(width+20,305);
+    button2.position(width+20,325);
+    button3.position(width+20,345);
     // Create a dropdown menu of the names of all the Whales. If a Whale name is
     // selected, use the mySelectEvent() callback.
     sel = createSelect();
-    sel.position(width+20, 470);
+    sel.position(width+20, 435);
     sel.option('Migaloo');
     sel.option('Keiko');
     sel.option('Moby');
@@ -1488,22 +1488,22 @@ function setup() {
     // Text to explain the DOM variables
     hearDiv1 = createDiv('Click the name of a whale');
     hearDiv2 = createDiv('to hear their call');
-    hearDiv1.style('position',width+20,270);
-    hearDiv2.style('position',width+20,290);
+    hearDiv1.style('position',width+20,235);
+    hearDiv2.style('position',width+20,255);
     chooseDiv1 = createDiv('Choose which whale you');
     chooseDiv2 = createDiv('think is the robot');
-    chooseDiv1.style('position',width+20,420); 
-    chooseDiv2.style('position',width+20,440); 
-    explanationDiv1 = createDiv('Right whales make "upcalls" to greet each');
-    explanationDiv2 = createDiv('other when they are close by.');
-    explanationDiv3 = createDiv('But beware! One of the "whales" is a robot');
-    explanationDiv4 = createDiv('pretending to be a whale. Listen to the ');
-    explanationDiv5 = createDiv('calls carefully and guess which one it is!');
-    explanationDiv1.style('position',width+20,150); 
-    explanationDiv2.style('position',width+20,170); 
-    explanationDiv3.style('position',width+20,190); 
-    explanationDiv4.style('position',width+20,210); 
-    explanationDiv5.style('position',width+20,230); 
+    chooseDiv1.style('position',width+20,385); 
+    chooseDiv2.style('position',width+20,405); 
+    explanationDiv1 = createDiv('Right whales make "upcalls"');
+    explanationDiv2 = createDiv('to greet their neighbors.');
+    explanationDiv3 = createDiv('But beware! One of them is');
+    explanationDiv4 = createDiv('a robot pretending to be a');
+    explanationDiv5 = createDiv('whale. Guess which one it is!');
+    explanationDiv1.style('position',width+20,115); 
+    explanationDiv2.style('position',width+20,135); 
+    explanationDiv3.style('position',width+20,155); 
+    explanationDiv4.style('position',width+20,175); 
+    explanationDiv5.style('position',width+20,195); 
 }
 
 function draw() {
