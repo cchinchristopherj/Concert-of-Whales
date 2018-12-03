@@ -14,6 +14,7 @@ let y_norm = 0;
 let z_norm = 0;
 let i = 0;
 let factorI = 1;
+let isPlaying = 0;
 
 // Variable to indicate whether trained neural network is finished loading
 let loading = false;
@@ -56,6 +57,10 @@ let sel;
 // Variables for Whale and WhaleSystem class
 let system;
 let all_calls;
+let real1;
+let real2;
+let real3;
+let fake4;
 let num_real_calls = 3;
 let calls = [];
 let clock_moveXY = 0;
@@ -590,12 +595,29 @@ WhaleSystem.prototype.makeCall = function(whale_num) {
 }
 
 /**
+ * Function to play the call sound for the specified whale and set the variable
+ * "isPlaying" to indicate whether or not a call sound is currently playing.
+ * "concert" function of WhaleSystem uses the setting of "isPlaying" to ensure
+ * that only one call sound is being played at once
+ * @param whale_num Index of the desired Whale in the "whales" array of the system
+ */
+WhaleSystem.prototype.setPlaying = function(whale_num) {
+  this.whales[whale_num].play();
+  isPlaying = 1;
+  setTimeout(() => {
+    isPlaying = 0;
+  }, 2000);
+}
+
+/**
  * Function to play the Whales' call sounds if they are close to each other (since
  * the right whale upcall is used by right whales in nature to greet each other).
  */
 WhaleSystem.prototype.concert = function() {
   // Array to hold the locations of the center points for each Whale
   let proximity = []; 
+  // Minimum distance whales must be from each other to start calling
+  let min_dist = 10;
   // Calculate the distance of each Whale's center point from the origin and add it
   // to the "proximity" array. 
   for (let i = 0; i < this.whales.length; i++) {
@@ -604,18 +626,18 @@ WhaleSystem.prototype.concert = function() {
   }
   // If two Whales are close in proximity to each other, have one of them play
   // its call sound.
-  if (Math.abs(proximity[0] - proximity[1]) < 50) {
-    this.whales[0].play();
-  } else if (Math.abs(proximity[0] - proximity[2]) < 50) {
-    this.whales[2].play();
-  } else if (Math.abs(proximity[0] - proximity[3]) < 50) {
-    play_fake_call(3);
-  } else if (Math.abs(proximity[1] - proximity[2]) < 50) {
-    this.whales[1].play();
-  } else if (Math.abs(proximity[1] - proximity[3]) < 50) {
-    this.whales[0].play();
-  } else if (Math.abs(proximity[2] - proximity[3]) < 50) {
-    this.whales[2].play();
+  if ((Math.abs(proximity[0] - proximity[1]) < min_dist) && isPlaying == 0) {
+    this.setPlaying(0);
+  } else if ((Math.abs(proximity[0] - proximity[2]) < min_dist) && isPlaying == 0) {
+    this.setPlaying(2);
+  } else if ((Math.abs(proximity[0] - proximity[3]) < min_dist) && isPlaying == 0) {
+    this.setPlaying(3);
+  } else if ((Math.abs(proximity[1] - proximity[2]) < min_dist) && isPlaying == 0) {
+    this.setPlaying(1);
+  } else if ((Math.abs(proximity[1] - proximity[3]) < min_dist) && isPlaying == 0) {
+    this.setPlaying(3);
+  } else if ((Math.abs(proximity[2] - proximity[3]) < min_dist) && isPlaying == 0){
+    this.setPlaying(2);
   }
 }
 
@@ -1256,7 +1278,7 @@ function play_fake_call(whale_num) {
  */
 async function load_models() {
   console.log('Loading models');
-  srnn = tf.loadModel('srnn_fit/model.json',strict=false);
+  srnn = tf.loadModel('http://localhost:8080/srnn_fit/model.json',strict=false);
   srnn = await srnn;
   console.log('SRNN loaded');
 
@@ -1376,24 +1398,24 @@ function preload() {
     // While the trained SampleRNN loads, a loading screen will be displayed on the
     // web page, showing a spectrogram of right whale upcalls. Preload this 
     // spectrogram image: 
-    spectrogram = loadImage("spectrogram.png");
+    spectrogram = loadImage("http://localhost:8080/spectrogram.png");
     // After the trained SampleRNN finishes loading, an ambient underwater sound will 
     // play in the background. The Whales will be drawn on the canvas and the SampleRNN
     // will begin synthesizing a new right whale upcall sound.
     soundFormats('mp3');
-    ambient = loadSound('ambient.mp3');
+    ambient = loadSound('http://localhost:8080/ambient.mp3');
     // There are eight "real" right whale upcall sounds available on the server 
     // to choose from. The "all_calls" vector will contain all these possible call
     // sounds.
-    let real1 = loadSound('real1.mp3');
-    let real2 = loadSound('real2.mp3');
-    let real3 = loadSound('real3.mp3');
-    let fake4 = loadSound('fake4.mp3');
+    real1 = loadSound('http://localhost:8080/real1.mp3');
+    real2 = loadSound('http://localhost:8080/real2.mp3');
+    real3 = loadSound('http://localhost:8080/real3.mp3');
+    fake4 = loadSound('http://localhost:8080/fake4.mp3');
     // Set the gain of the whale call sounds
-    real1.setVolume(0.2);
-    real2.setVolume(0.2);
-    real3.setVolume(0.2);
-    fake4.setVolume(0.2);
+    real1.setVolume(0.3);
+    real2.setVolume(0.3);
+    real3.setVolume(0.3);
+    fake4.setVolume(0.3);
     all_calls = [real1,real2,real3,fake4];
     // Load the JSON files containing the initial states of the GRUs
     // var url = 'http://localhost:8080/slow_rnn_initialstate.json';
@@ -1409,7 +1431,7 @@ function setup() {
     // Call the asynchronous load_models() function to begin loading the SampleRNN
     // load_models();
     // Set the gain of the ambient sound and set it to loop
-    ambient.setVolume(0.2);
+    ambient.setVolume(0.3);
     // Additional code to use the 3D audio available from p5.js
     // panner1 = new p5.Panner3D();
     // ambient.disconnect();
@@ -1431,18 +1453,22 @@ function setup() {
     // Whale's call will be played.
     button0= createButton('Migaloo');
     button0.mousePressed(function() {
+      real1.setVolume(0.5);
       system.makeCall(0);
     });
     button1 = createButton('Keiko');
     button1.mousePressed(function() {
+      real2.setVolume(0.5);
       system.makeCall(1);
     });
     button2 = createButton('Moby');
     button2.mousePressed(function() {
+      real3.setVolume(0.5);
       system.makeCall(2);
     });
     button3 = createButton('Willy');
     button3.mousePressed(function() {
+      fake4.setVolume(0.5);
       // play_fake_call(3);
       system.makeCall(3);
     });
@@ -1468,14 +1494,16 @@ function setup() {
     chooseDiv2 = createDiv('think is the robot');
     chooseDiv1.style('position',width+20,420); 
     chooseDiv2.style('position',width+20,440); 
-    explanationDiv1 = createDiv('One of the four "whales" is');
-    explanationDiv2 = createDiv('a robot pretending to be a'); 
-    explanationDiv3 = createDiv('whale. Listen to the calls');
-    explanationDiv4 = createDiv('and guess which one it is!');
+    explanationDiv1 = createDiv('Right whales make "upcalls" to greet each');
+    explanationDiv2 = createDiv('other when they are close by.');
+    explanationDiv3 = createDiv('But beware! One of the "whales" is a robot');
+    explanationDiv4 = createDiv('pretending to be a whale. Listen to the ');
+    explanationDiv5 = createDiv('calls carefully and guess which one it is!');
     explanationDiv1.style('position',width+20,150); 
     explanationDiv2.style('position',width+20,170); 
     explanationDiv3.style('position',width+20,190); 
     explanationDiv4.style('position',width+20,210); 
+    explanationDiv5.style('position',width+20,230); 
 }
 
 function draw() {
@@ -1493,7 +1521,7 @@ function draw() {
       }
       // Call run() on the system
       system.run(t);
-      // Call changemoveXY(_ on the system)
+      // Call changemoveXY() on the system
       system.changemoveXY(clock_moveXY); 
       // Call bar_move() to update the progres bar, indicating how many samples 
       // the SampleRNN has predicted for the "samples" vector.
@@ -1505,6 +1533,7 @@ function draw() {
         explanationDiv2.show();
         explanationDiv3.show();
         explanationDiv4.show();
+        explanationDiv5.show();
         hearDiv1.show();
         hearDiv2.show();
         chooseDiv1.show();
@@ -1528,6 +1557,7 @@ function draw() {
         explanationDiv2.show();
         explanationDiv3.show();
         explanationDiv4.show();
+        explanationDiv5.show();
         hearDiv1.show();
         hearDiv2.show();
         chooseDiv1.show();
@@ -1537,6 +1567,8 @@ function draw() {
         button2.show();
         button3.show();
         sel.show();
+      // Call concert() on the system
+      system.concert();
       } else {
           // Code for before the "samples" vector is complete
           // Hide the DOM variables containing explanatory text
@@ -1544,6 +1576,7 @@ function draw() {
           explanationDiv2.hide();
           explanationDiv3.hide();
           explanationDiv4.hide();
+          explanationDiv5.hide();
           hearDiv1.hide();
           hearDiv2.hide();
           chooseDiv1.hide();
@@ -1564,6 +1597,7 @@ function draw() {
     explanationDiv2.hide();
     explanationDiv3.hide();
     explanationDiv4.hide();
+    explanationDiv5.hide();
     hearDiv1.hide();
     hearDiv2.hide();
     chooseDiv1.hide();
