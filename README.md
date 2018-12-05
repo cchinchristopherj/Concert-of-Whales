@@ -7,7 +7,12 @@ The goal of this project was to synthesize a 2-second-long audio waveform of a r
 
 In order to obtain more realistic-sounding results, the next model to be investigated was [SampleRNN](https://arxiv.org/pdf/1612.07837.pdf). A Three-Tier SampleRNN was implemented, in which each of the three modules in the hierarchy conditions the one below it so that the lowest module outputs sample-by-sample predictions. Concretely, the highest level module processes the previous 8 samples of the time series  using an RNN and passes a conditioning vector to the second-highest-level module, which in turn processes the previous 2 samples of the time series using an RNN and passes a conditioning vector to the lowest-level module. This module processes only the previous sample of the time series and outputs a q=256-way softmax over quantized values of the audio waveform. (As an additional design choice, which was proven to improve results, the lowest module passes the previous (quantized) value of the audio clip time series through an embedding layer, which maps each of the quantized values to a real-valued vector embedding. Further, to speed up training, a Multilayer Perceptron is used in the lowest-level module instead of an RNN to yield the final (quantized) prediction for the next sample). 
 
-After training, the SampleRNN is tasked with synthesizing a new 2-second long right whale up call sound. A representative sample can be found here: 
+After training, the SampleRNN is tasked with synthesizing a new 2-second long right whale upcall sound. A representative sample can be found [here:](https://github.com/cchinchristopherj/Concert-of-Whales/blob/cchinchristopherj-patch-1/fake4.mp3)
+
+For comparison, three representative examples of upcall sounds from the training set can be found below:
+- [Real Upcall Sound 1](https://github.com/cchinchristopherj/Concert-of-Whales/blob/cchinchristopherj-patch-1/real1.mp3)
+- [Real Upcall Sound 2](https://github.com/cchinchristopherj/Concert-of-Whales/blob/cchinchristopherj-patch-1/real2.mp3)
+- [Real Upcall Sound 3](https://github.com/cchinchristopherj/Concert-of-Whales/blob/cchinchristopherj-patch-1/real3.mp3)
 
 In order to demonstrate the high degree of realism attained by SampleRNN with only a few epochs of training, an application was developed in which four whales are drawn to a canvas, three of which make “real” right whale upcall sounds from the training set, and the fourth makes the “fake” upcall sound created by the neural network. The task of the user is to identify the whale that made the "fake" right whale upcall sound.
 
