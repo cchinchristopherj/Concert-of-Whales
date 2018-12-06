@@ -9,6 +9,8 @@ In order to obtain more realistic-sounding results, the next model to be investi
 
 ![threetier](https://github.com/cchinchristopherj/Concert-of-Whales/blob/master/threetier.png)
 
+*Three-Tier SampleRNN Architecture. Image Source: [SampleRNN: An Unconditional End-To-End Neural Audio Generation Model.](https://arxiv.org/pdf/1612.07837.pdf)*
+
 Concretely, the highest level module processes the previous 8 samples of the time series  using an RNN and passes a conditioning vector to the second-highest-level module, which in turn processes the previous 2 samples of the time series using an RNN and passes a conditioning vector to the lowest-level module. This module processes only the previous sample of the time series and outputs a q=256-way softmax over quantized values of the audio waveform. (As an additional design choice, which was proven to improve results, the lowest module passes the previous (quantized) value of the audio clip time series through an embedding layer, which maps each of the quantized values to a real-valued vector embedding. Further, to speed up training, a Multilayer Perceptron is used in the lowest-level module instead of an RNN to yield the final (quantized) prediction for the next sample). 
 
 After training, the SampleRNN is tasked with synthesizing a new 2-second long right whale upcall sound. A representative sample can be found [here:](https://github.com/cchinchristopherj/Concert-of-Whales/blob/cchinchristopherj-patch-1/fake4.mp3)
