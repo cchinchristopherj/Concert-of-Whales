@@ -1490,7 +1490,7 @@ function setup() {
     // Button to turn on Audio
     let ctx = getAudioContext();
     ctxOn = createButton('Sound On');
-    ctxOn.position(width+20,80);
+    ctxOn.position(width+20,120);
     ctxOn.mousePressed(() => {
         ctx.resume().then(() => {
             ctxOn.hide();
