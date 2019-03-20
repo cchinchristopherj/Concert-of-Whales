@@ -54,6 +54,7 @@ let button1;
 let button2;
 let button3;
 let sel;
+let ctxOn;
 
 // Variables for Whale and WhaleSystem class
 let system;
@@ -1486,6 +1487,15 @@ function setup() {
     sel.option('Moby');
     sel.option('Willy');
     sel.changed(mySelectEvent);
+    // Button to turn on Audio
+    let ctx = getAudioContext();
+    ctxOn = createButton('Sound On');
+    ctxOn.position(width+20,40);
+    ctxOn.mousePressed(() => {
+        ctx.resume().then(() => {
+            ctxOn.hide();
+  	    });
+    });
     // Text to explain the DOM variables
     hearDiv1 = createDiv('Click the name of a whale');
     hearDiv2 = createDiv('to hear their call');
